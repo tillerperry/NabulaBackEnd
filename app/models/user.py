@@ -1,29 +1,36 @@
+from datetime import datetime
 from tkinter import Grid
 import uuid
 
 
 class User:
-    def __init__(self, full_name, age, occupation, nationality, marital_status, email, created_at,id,student_id):
-        self.full_name = full_name
+    def __init__(self, fullName, age, occupation, nationality, maritalStatus, email, createdAt,id:str,student_id:str,cohort):
+        self.fullName = fullName
         self.age = age
         self.occupation = occupation
         self.nationality = nationality
-        self.marital_status = marital_status
+        self.maritalStatus = maritalStatus
         self.email = email
-        self.created_at = created_at,
         self.id = id,
-        self.student_id = student_id
+        self.student_id = student_id,
+        self.cohort = cohort
+        self.createdAt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.id = str(uuid.uuid4())
+        self.student_id = str(uuid.uuid4())
+        
         
 
     def to_dict(self):
         return {
             'id': self.id,
             'student_id': self.student_id,
-            'full_name': self.full_name,
+            'fullName': self.fullName,
             'age': self.age,
             'occupation': self.occupation,
             'nationality': self.nationality,
-            'marital_status': self.marital_status,
+            'maritalStatus': self.maritalStatus,
             'email': self.email,
-            'created_at': self.created_at
+            'createdAt': self.createdAt,
+            'cohort': self.cohort
+            
         }

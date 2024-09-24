@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from app.utils.dynamodb import add_user_to_dynamodb, GetSingleUserById
+from app.utils.dynamodb import add_user_to_dynamodb, GetSingleUserById,get_all_users
 
 
 class UserService:
@@ -33,7 +33,9 @@ class UserService:
             'nationality': user_data['nationality'],
             'marital_status': user_data['marital_status'],
             'email': user_data['email'],
-            'created_at': timestamp
+            'created_at': timestamp,
+            'id': user_id,
+            'cohort': user_data['cohort']
         }
 
         # Add the user to DynamoDB
@@ -42,12 +44,22 @@ class UserService:
     
  
         
-    def get_user_by_id(student_id):
+    def get_user_by_id(self,student_id):
         """Retrieve a user from DynamoDB by their student_id."""
         try:
             user = GetSingleUserById(student_id)
             if user:
                 return user
+        except Exception as e:
+            print(e.response['Error']['Message'])
+            return None
+        
+        
+    def get_all_users(self):
+        """Retrieve all users from DynamoDB."""
+        try:
+            users = get_all_users()
+            return users
         except Exception as e:
             print(e.response['Error']['Message'])
             return None
