@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from app.utils import dynamodb
 from app.utils.dynamodb import add_user_to_dynamodb, GetSingleUserById,get_all_users
 
 
@@ -65,4 +66,34 @@ class UserService:
             return None
         
         
+    def authenticate_user(email, password):
+        """
+        Authenticates the user by email and password.
+        For simplicity, we assume password is stored in plaintext.
+        In production, use hashed passwords.
+        """
+        user_table = dynamodb.Table('Users')
+        response = user_table.scan(
+            FilterExpression="email = :email",
+            ExpressionAttributeValues={":email": email}
+        )
+
+        if response['Items']:
+            user = response['Items'][0]
+            # Verify the password (in production, check hashed passwords)
+            if user.get('password') == password:
+                return user
+        return None
+
+    @staticmethod
+    def update_logged_in_time(student_id, logged_in_at):
+        """
+        Updates the LoggedInAt field of the user with the given student_id.
+        """
+        user_table = dynamodb.Table('Users')
+        user_table.update_item(
+            Key={'student_id': student_id},
+            UpdateExpression="SET LoggedInAt = :loggedInAt",
+            ExpressionAttributeValues={":loggedInAt": logged_in_at}
+        )  
       

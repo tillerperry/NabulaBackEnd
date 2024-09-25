@@ -3,14 +3,14 @@ import uuid
 from flask import Blueprint, request, jsonify
 from app.models.user import User
 from app.utils.dynamodb import add_user_to_dynamodb
-from app.services.userService import UserService
+from app.services.userService import UserService 
 #rom app.services.email_service import send_confirmation_email 
 from datetime import datetime
 
 ##user_blueprint = Blueprint('user', __name__)
 user_bp = Blueprint('user_routes', __name__)
 
-@user_bp.route('/add_user', methods=['POST'])
+@user_bp.route('/api/add_user', methods=['POST'])
 def add_user():
     try:
         data = request.json
@@ -41,7 +41,7 @@ def add_user():
         return jsonify({"error": str(e)}), 500
     
     
-@user_bp.route('/user/<id>', methods=['GET'])
+@user_bp.route('/api/user/<id>', methods=['GET'])
 def getSingleUserAsync(id):
     try:
         # Use UserService to get the user by student_id
@@ -70,7 +70,7 @@ def getSingleUserAsync(id):
             "error": str(e)
         }), 500
         
-@user_bp.route('/users', methods=['GET'])
+@user_bp.route('/api/users', methods=['GET'])
 def getAllUsersAsync():
     try:
         # Use UserService to get all users
@@ -96,3 +96,25 @@ def getAllUsersAsync():
             "data": None,
             "error": str(e)
         }), 500
+        
+        
+@user_bp.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    # Validate user credentials
+    user = UserService.authenticate_user(email, password)
+    
+    if user:
+        # Update the LoggedInAt timestamp
+        logged_in_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        UserService.update_logged_in_time(user['student_id'], logged_in_at)
+
+        return jsonify({
+            "message": "Login successful",
+            "data": user
+        }), 200
+    else:
+        return jsonify({"message": "Invalid credentials"}), 401
